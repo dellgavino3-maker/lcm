@@ -4,9 +4,15 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install --omit=dev --no-audit --no-fund
+# Install build tools needed for native C++ modules (like better-sqlite3)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    make \
+    g++ \
+    && npm install --omit=dev --no-audit --no-fund \
+    && apt-get purge -y --auto-remove python3 make g++ \
+    && rm -rf /var/lib/apt/lists/*
 
-# Add these lines to complete the build and start the app:
 COPY . .
 
 EXPOSE 3000
